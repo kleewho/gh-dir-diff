@@ -70,11 +70,9 @@ export default {
 
       // Set state in secure, httpOnly cookie
       // SameSite=None is required for cross-site redirects (GitHub -> Worker)
-      return Response.redirect(githubUrl.toString(), 302, {
-        headers: {
-          "Set-Cookie": `oauth_state=${signedState}; HttpOnly; Secure; SameSite=None; Max-Age=600; Path=/`,
-        },
-      });
+      const response = Response.redirect(githubUrl.toString(), 302);
+      response.headers.set("Set-Cookie", `oauth_state=${signedState}; HttpOnly; Secure; SameSite=None; Max-Age=600; Path=/`);
+      return response;
     }
 
     if (url.pathname === "/callback") {
@@ -134,15 +132,12 @@ export default {
       }
 
       // Clear the state cookie and redirect to frontend with token in URL fragment
-      return Response.redirect(
+      const redirectResponse = Response.redirect(
         `${env.FRONTEND_URL}/#access_token=${tokenData.access_token}`,
-        302,
-        {
-          headers: {
-            "Set-Cookie": "oauth_state=; HttpOnly; Secure; SameSite=None; Max-Age=0; Path=/",
-          },
-        }
+        302
       );
+      redirectResponse.headers.set("Set-Cookie", "oauth_state=; HttpOnly; Secure; SameSite=None; Max-Age=0; Path=/");
+      return redirectResponse;
     }
 
     // Health check / info endpoint
