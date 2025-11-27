@@ -5,8 +5,8 @@ on:
     branches:
       - main
     paths:
-      - 'gh-dir-diff-oauth/gh-dir-diff-oauth/**'
-      - '.github/workflows/deploy-worker.yml'
+      - "gh-dir-diff-oauth/**"
+      - ".github/workflows/deploy-worker.yml"
   workflow_dispatch:
 
 jobs:
@@ -19,12 +19,12 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: 'gh-dir-diff-oauth/gh-dir-diff-oauth/package-lock.json'
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: "gh-dir-diff-oauth/package-lock.json"
 
       - name: Install dependencies
-        working-directory: gh-dir-diff-oauth/gh-dir-diff-oauth
+        working-directory: gh-dir-diff-oauth
         run: npm ci
 
       - name: Deploy to Cloudflare Workers
@@ -32,4 +32,4 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          workingDirectory: 'gh-dir-diff-oauth/gh-dir-diff-oauth'
+          workingDirectory: "gh-dir-diff-oauth"

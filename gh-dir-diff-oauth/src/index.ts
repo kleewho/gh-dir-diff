@@ -69,9 +69,10 @@ export default {
       githubUrl.searchParams.set("state", state);
 
       // Set state in secure, httpOnly cookie
+      // SameSite=None is required for cross-site redirects (GitHub -> Worker)
       return Response.redirect(githubUrl.toString(), 302, {
         headers: {
-          "Set-Cookie": `oauth_state=${signedState}; HttpOnly; Secure; SameSite=Lax; Max-Age=600; Path=/`,
+          "Set-Cookie": `oauth_state=${signedState}; HttpOnly; Secure; SameSite=None; Max-Age=600; Path=/`,
         },
       });
     }
@@ -138,7 +139,7 @@ export default {
         302,
         {
           headers: {
-            "Set-Cookie": "oauth_state=; HttpOnly; Secure; SameSite=Lax; Max-Age=0; Path=/",
+            "Set-Cookie": "oauth_state=; HttpOnly; Secure; SameSite=None; Max-Age=0; Path=/",
           },
         }
       );
