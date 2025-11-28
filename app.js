@@ -268,13 +268,11 @@ function updateURL() {
   const filter = document.getElementById("path-filter").value.trim();
 
   if (repo && base && head) {
-    const params = new URLSearchParams();
-    params.set("repo", repo);
-    params.set("base", base);
-    params.set("head", head);
-    if (filter) params.set("filter", filter);
-
-    history.replaceState(null, "", `?${params.toString()}`);
+    let url = `/gh-dir-diff/${repo}/${base}..${head}`;
+    if (filter) {
+      url += `?filter=${encodeURIComponent(filter)}`;
+    }
+    history.replaceState(null, "", url);
   }
 }
 
@@ -294,10 +292,52 @@ function copyShareLink() {
   });
 }
 
-// Load form values from URL parameters
+// Parse path-based URL: /gh-dir-diff/owner/repo/base..head?filter=glob
 function loadFromURL() {
+  const pathname = window.location.pathname;
   const params = new URLSearchParams(window.location.search);
 
+  // Check if we have a path-based URL
+  if (pathname.startsWith('/gh-dir-diff/') && pathname.length > '/gh-dir-diff/'.length) {
+    // Remove /gh-dir-diff/ prefix
+    const path = pathname.slice('/gh-dir-diff/'.length);
+
+    // Split by .. to separate base and head
+    const parts = path.split('..');
+
+    if (parts.length === 2) {
+      // parts[0] contains: owner/repo/base (with possible slashes in base)
+      // parts[1] contains: head (with possible slashes)
+
+      const segments = parts[0].split('/');
+
+      if (segments.length >= 2) {
+        // First two segments are always owner/repo
+        const repo = `${segments[0]}/${segments[1]}`;
+        // Everything after is the base ref
+        const base = segments.slice(2).join('/');
+        const head = parts[1];
+
+        // Populate form
+        document.getElementById("repo").value = repo;
+        document.getElementById("base").value = base;
+        document.getElementById("head").value = head;
+        document.getElementById("path-filter").value = params.get("filter") || "";
+
+        // Auto-load diff
+        setTimeout(() => {
+          const form = document.getElementById("diff-form");
+          if (form.checkValidity()) {
+            loadDiff(new Event("submit"));
+          }
+        }, 100);
+
+        return;
+      }
+    }
+  }
+
+  // Fallback to query params for backwards compatibility
   if (params.get("repo")) {
     document.getElementById("repo").value = params.get("repo") || "";
     document.getElementById("base").value = params.get("base") || "";
