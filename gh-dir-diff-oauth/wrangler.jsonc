@@ -11,6 +11,6 @@
 		"enabled": true
 	},
 	"vars": {
-		"FRONTEND_URL": "https://kleewho.github.io/gh-dir-diff"
+		"FRONTEND_URL": "https://gh-diff.pages.dev"
 	}
 }
