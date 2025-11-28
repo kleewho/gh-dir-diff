@@ -268,7 +268,7 @@ function updateURL() {
   const filter = document.getElementById("path-filter").value.trim();
 
   if (repo && base && head) {
-    let url = `/gh-dir-diff/${repo}/${base}..${head}`;
+    let url = `/${repo}/${base}..${head}`;
     if (filter) {
       url += `?filter=${encodeURIComponent(filter)}`;
     }
@@ -292,15 +292,15 @@ function copyShareLink() {
   });
 }
 
-// Parse path-based URL: /gh-dir-diff/owner/repo/base..head?filter=glob
+// Parse path-based URL: /owner/repo/base..head?filter=glob
 function loadFromURL() {
   const pathname = window.location.pathname;
   const params = new URLSearchParams(window.location.search);
 
   // Check if we have a path-based URL
-  if (pathname.startsWith('/gh-dir-diff/') && pathname.length > '/gh-dir-diff/'.length) {
-    // Remove /gh-dir-diff/ prefix
-    let path = pathname.slice('/gh-dir-diff/'.length);
+  if (pathname.length > 1 && pathname !== '/') {
+    // Remove leading slash
+    let path = pathname.slice(1);
 
     // Remove trailing slash if present
     if (path.endsWith('/')) {
