@@ -300,7 +300,12 @@ function loadFromURL() {
   // Check if we have a path-based URL
   if (pathname.startsWith('/gh-dir-diff/') && pathname.length > '/gh-dir-diff/'.length) {
     // Remove /gh-dir-diff/ prefix
-    const path = pathname.slice('/gh-dir-diff/'.length);
+    let path = pathname.slice('/gh-dir-diff/'.length);
+
+    // Remove trailing slash if present
+    if (path.endsWith('/')) {
+      path = path.slice(0, -1);
+    }
 
     // Split by .. to separate base and head
     const parts = path.split('..');
@@ -318,6 +323,8 @@ function loadFromURL() {
         const base = segments.slice(2).join('/');
         const head = parts[1];
 
+        console.log('Parsed URL:', { repo, base, head, filter: params.get("filter") });
+
         // Populate form
         document.getElementById("repo").value = repo;
         document.getElementById("base").value = base;
@@ -327,8 +334,16 @@ function loadFromURL() {
         // Auto-load diff
         setTimeout(() => {
           const form = document.getElementById("diff-form");
+          console.log('Form validity:', form.checkValidity());
           if (form.checkValidity()) {
-            loadDiff(new Event("submit"));
+            const event = new Event("submit", { bubbles: true, cancelable: true });
+            form.dispatchEvent(event);
+          } else {
+            console.error('Form is not valid:', {
+              repo: document.getElementById("repo").validity,
+              base: document.getElementById("base").validity,
+              head: document.getElementById("head").validity
+            });
           }
         }, 100);
 
@@ -348,7 +363,8 @@ function loadFromURL() {
     setTimeout(() => {
       const form = document.getElementById("diff-form");
       if (form.checkValidity()) {
-        loadDiff(new Event("submit"));
+        const event = new Event("submit", { bubbles: true, cancelable: true });
+        form.dispatchEvent(event);
       }
     }, 100);
   }
